@@ -157,21 +157,22 @@ Each center should use the same file format, while retaining flexibility to incl
 Standard:
 * Lossless CRAM. Upon conversion to BAM, the BAM file should be valid according to Picard’s ValidateSamFile.
 * Read group (@RG) tags should be present for all reads.
-   * The header for the RG should contain minimally the ID tag, PL tag, PU tag, SM tag, and LB tag.
-   * The CN tag is recommended.
-   * Other tags are optional.
+   * The header for the RG should contain the following tags: ID, PL, PU, SM, LB, CN, and DS.
+   * Additional tags are optional.
    * The ID tag must be unique within the CRAM. ID tags may be freely renamed to maintain uniqueness when merging CRAMs. No assumptions should be made about the permanence of RG IDs. 
    * The PL tag should indicate the instrument vendor name according to the SAM spec (CAPILLARY, LS454, ILLUMINA, SOLID, HELICOS, IONTORRENT, ONT, and PACBIO).  PL values are case insensitive.
    * The PU tag is used for grouping reads for BQSR and should uniquely identify reads as belonging to a sample-library-flowcell-lane (or other appropriate recalibration unit) within the CRAM file. PU is not required to contain values for fields that are uniform across the CRAM (e.g., single sample CRAM or single library CRAM). The PU tag is not guaranteed to be sufficiently informative after merging with other CRAMs, and anyone performing a merge should consider modifying PU values appropriately.
    * SM should contain the individual identifier for the sample (e.g., NA12878) without any other process or aliquot-specific information.
    * The LB tag should uniquely identify the library for the sample; it must be present even if there is only a single library per sample or CRAM file.
-   * If the PM tag is used, values should conform to one of the following (for Illumina instruments): “HiSeq-X”, “HiSeq-4000”, “HiSeq-2500”, “HiSeq-2000”, “NextSeq-500”, or “MiSeq”.
+   * The CN tag should correctly identify the center where the sample was sequenced.  Initials may be used (for example, Broad Institute uses "BI")
+   * The DS tag should contain a string that identifies the lab protocol used for creating the reads. This does not need to be a full description. Readgroups generated from the same protocol (across different samples) should have the same DS tag, whereas if they arose from different protocols the DS tags should differ. **Do not include specific information about the sample being sequenced. **
+   * If the PM tag is used, values should conform to one of the following (for Illumina instruments): “HiSeq-X”, “HiSeq-4000”, “HiSeq-2500”, “HiSeq-2000”, “NextSeq-500”, “MiSeq”, or "NovaSeq".
 * Retain original query names.
 * Retain @PG records for bwa, duplicate marking, quality recalibration, and any other tools that was run on the data.
 * Retain the minimal set of tags (RG, MQ, MC and SA).  NOTE: an additional tool may be needed to add the MQ and MC tags if none of the tools add these tags otherwise.  One option is to pipe the alignment through [samblaster](https://github.com/GregoryFaust/samblaster) with the options `-a --addMateTags` as it comes out of BWA
 * Groups can add custom tags as needed.
 * Do not retain the original base quality scores (OQ tag).
-*  it is recommended that users use samtools version >=1.3.1 to convert from BAM/SAM to CRAM (The use of htsjdk/Picard/GATK for converting BAM to CRAM is not currently condoned). Users that would like to convert back from CRAM to BAM (and want to avoid ending up with an invalid BAM) need to either convert to SAM and then to BAM (piping works) or compile samtools with HTSLib version >=1.3.2. To enable this you need to: configure the build of samtools with the parameter `--with-htslib=/path/to/htslib-1.3.2`.
+* It is recommended that users use samtools version >=1.3.1 to convert from BAM/SAM to CRAM (The use of htsjdk/Picard/GATK for converting BAM to CRAM is not currently condoned). Users that would like to convert back from CRAM to BAM (and want to avoid ending up with an invalid BAM) need to either convert to SAM and then to BAM (piping works) or compile samtools with HTSLib version >=1.3.2. To enable this you need to: configure the build of samtools with the parameter `--with-htslib=/path/to/htslib-1.3.2`.
 
 # Functional equivalence evaluation
 All pipelines used for this effort need to be validated as functionally equivalent.  The validation methodology will be published alongside a test data set.
